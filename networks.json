@@ -1,0 +1,8 @@
+{
+  "base-testnet": {
+    "SquaryBaseTest": {
+      "address": "0x3525566E98AF1593E3A5EA92383585e5F3d9ec64",
+      "startBlock": 11405111
+    }
+  }
+}

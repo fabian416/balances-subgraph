@@ -1,0 +1,67 @@
+type DepositMade @entity(immutable: true) {
+  id: Bytes!
+  groupId: Bytes! # bytes32
+  member: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type GroupCreated @entity(immutable: true) {
+  id: Bytes!
+  SquaryBaseTest_id: Bytes! # bytes32
+  name: String! # string
+  members: [Bytes!]! # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MemberAdded @entity(immutable: true) {
+  id: Bytes!
+  groupId: Bytes! # bytes32
+  newMember: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MemberRemoved @entity(immutable: true) {
+  id: Bytes!
+  groupId: Bytes! # bytes32
+  member: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SettleCompleted @entity(immutable: true) {
+  id: Bytes!
+  groupId: Bytes! # bytes32
+  debtor: Bytes! # address
+  creditor: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ThresholdChanged @entity(immutable: true) {
+  id: Bytes!
+  groupId: Bytes! # bytes32
+  newThreshold: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WithdrawalMade @entity(immutable: true) {
+  id: Bytes!
+  groupId: Bytes! # bytes32
+  member: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
