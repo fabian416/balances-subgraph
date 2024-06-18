@@ -1,21 +1,35 @@
 import {
   DepositMade as DepositMadeEvent,
-  GroupCreated as GroupCreatedEvent,
-  MemberAdded as MemberAddedEvent,
-  MemberRemoved as MemberRemovedEvent,
+  WithdrawalMade as WithdrawalMadeEvent,
   SettleCompleted as SettleCompletedEvent,
-  ThresholdChanged as ThresholdChangedEvent,
-  WithdrawalMade as WithdrawalMadeEvent
 } from "../generated/SquaryBaseTest/SquaryBaseTest"
 import {
+  Balance,
   DepositMade,
-  GroupCreated,
-  MemberAdded,
-  MemberRemoved,
-  SettleCompleted,
-  ThresholdChanged,
-  WithdrawalMade
+  WithdrawalMade,
+  SettleCompleted
 } from "../generated/schema"
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+
+function updateBalance(groupId: Bytes, member: Bytes, amount: BigInt, isCredit: boolean): void {
+  let id = groupId.toHex() + '-' + member.toHex();
+  let balance = Balance.load(id);
+
+  if (balance == null) {
+    balance = new Balance(id);
+    balance.groupId = groupId;
+    balance.member = member;
+    balance.balance = BigInt.fromI32(0);
+  }
+
+  if (isCredit) {
+    balance.balance = balance.balance.plus(amount);
+  } else {
+    balance.balance = balance.balance.minus(amount);
+  }
+
+  balance.save();
+}
 
 export function handleDepositMade(event: DepositMadeEvent): void {
   let entity = new DepositMade(
@@ -30,49 +44,25 @@ export function handleDepositMade(event: DepositMadeEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  updateBalance(event.params.groupId, event.params.member, event.params.amount, true);
 }
 
-export function handleGroupCreated(event: GroupCreatedEvent): void {
-  let entity = new GroupCreated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.SquaryBaseTest_id = event.params.id
-  entity.name = event.params.name
-  entity.members = event.params.members
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleMemberAdded(event: MemberAddedEvent): void {
-  let entity = new MemberAdded(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.groupId = event.params.groupId
-  entity.newMember = event.params.newMember
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleMemberRemoved(event: MemberRemovedEvent): void {
-  let entity = new MemberRemoved(
+export function handleWithdrawalMade(event: WithdrawalMadeEvent): void {
+  let entity = new WithdrawalMade(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.groupId = event.params.groupId
   entity.member = event.params.member
+  entity.amount = event.params.amount
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  updateBalance(event.params.groupId, event.params.member, event.params.amount, false);
 }
 
 export function handleSettleCompleted(event: SettleCompletedEvent): void {
@@ -89,33 +79,10 @@ export function handleSettleCompleted(event: SettleCompletedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
-}
 
-export function handleThresholdChanged(event: ThresholdChangedEvent): void {
-  let entity = new ThresholdChanged(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.groupId = event.params.groupId
-  entity.newThreshold = event.params.newThreshold
+  // Debtor loses the amount
+  updateBalance(event.params.groupId, event.params.debtor, event.params.amount, false);
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleWithdrawalMade(event: WithdrawalMadeEvent): void {
-  let entity = new WithdrawalMade(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.groupId = event.params.groupId
-  entity.member = event.params.member
-  entity.amount = event.params.amount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  // Creditor gains the amount
+  updateBalance(event.params.groupId, event.params.creditor, event.params.amount, true);
 }

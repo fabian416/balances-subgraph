@@ -65,3 +65,10 @@ type WithdrawalMade @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type Balance @entity {
+  id: ID!
+  groupId: Bytes!
+  member: Bytes! # address
+  balance: BigInt! # uint256
+}
