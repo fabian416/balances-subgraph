@@ -6,9 +6,9 @@ dataSources:
     name: SquaryBaseTest
     network: base-testnet
     source:
-      address: "0x3525566E98AF1593E3A5EA92383585e5F3d9ec64"
+      address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B"
       abi: SquaryBaseTest
-      startBlock: 11405111
+      startBlock: 18132774
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -16,8 +16,6 @@ dataSources:
       entities:
         - DepositMade
         - GroupCreated
-        - MemberAdded
-        - MemberRemoved
         - SettleCompleted
         - ThresholdChanged
         - WithdrawalMade
@@ -29,10 +27,6 @@ dataSources:
           handler: handleDepositMade
         - event: GroupCreated(indexed bytes32,string,address[])
           handler: handleGroupCreated
-        - event: MemberAdded(indexed bytes32,indexed address)
-          handler: handleMemberAdded
-        - event: MemberRemoved(indexed bytes32,indexed address)
-          handler: handleMemberRemoved
         - event: SettleCompleted(indexed bytes32,indexed address,indexed address,uint256)
           handler: handleSettleCompleted
         - event: ThresholdChanged(indexed bytes32,uint256)
