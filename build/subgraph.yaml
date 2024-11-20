@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: SquaryBaseTest
-    network: base-testnet
+    network: base-sepolia
     source:
       address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B"
       abi: SquaryBaseTest
-      startBlock: 18132774
+      startBlock: 11405111
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -21,7 +21,7 @@ dataSources:
         - WithdrawalMade
       abis:
         - name: SquaryBaseTest
-          file: SquaryBaseTest/abis/SquaryBaseTest.json
+          file: SquaryBaseTest/SquaryBaseTest.json
       eventHandlers:
         - event: DepositMade(indexed bytes32,indexed address,uint256)
           handler: handleDepositMade

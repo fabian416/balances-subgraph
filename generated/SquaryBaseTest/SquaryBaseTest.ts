@@ -62,50 +62,6 @@ export class GroupCreated__Params {
   }
 }
 
-export class MemberAdded extends ethereum.Event {
-  get params(): MemberAdded__Params {
-    return new MemberAdded__Params(this);
-  }
-}
-
-export class MemberAdded__Params {
-  _event: MemberAdded;
-
-  constructor(event: MemberAdded) {
-    this._event = event;
-  }
-
-  get groupId(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get newMember(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-}
-
-export class MemberRemoved extends ethereum.Event {
-  get params(): MemberRemoved__Params {
-    return new MemberRemoved__Params(this);
-  }
-}
-
-export class MemberRemoved__Params {
-  _event: MemberRemoved;
-
-  constructor(event: MemberRemoved) {
-    this._event = event;
-  }
-
-  get groupId(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get member(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-}
-
 export class SettleCompleted extends ethereum.Event {
   get params(): SettleCompleted__Params {
     return new SettleCompleted__Params(this);
@@ -282,38 +238,6 @@ export class SquaryBaseTest__groupsResult {
   }
 }
 
-export class SquaryBaseTest__pendingSettlementsResult {
-  value0: Address;
-  value1: Address;
-  value2: BigInt;
-
-  constructor(value0: Address, value1: Address, value2: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromAddress(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    return map;
-  }
-
-  getDebtor(): Address {
-    return this.value0;
-  }
-
-  getCreditor(): Address {
-    return this.value1;
-  }
-
-  getAmount(): BigInt {
-    return this.value2;
-  }
-}
-
 export class SquaryBaseTest extends ethereum.SmartContract {
   static bind(address: Address): SquaryBaseTest {
     return new SquaryBaseTest("SquaryBaseTest", address);
@@ -356,6 +280,38 @@ export class SquaryBaseTest extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  calculateSuggestedPayment(groupId: Bytes, member: Address): BigInt {
+    let result = super.call(
+      "calculateSuggestedPayment",
+      "calculateSuggestedPayment(bytes32,address):(uint256)",
+      [
+        ethereum.Value.fromFixedBytes(groupId),
+        ethereum.Value.fromAddress(member),
+      ],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_calculateSuggestedPayment(
+    groupId: Bytes,
+    member: Address,
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "calculateSuggestedPayment",
+      "calculateSuggestedPayment(bytes32,address):(uint256)",
+      [
+        ethereum.Value.fromFixedBytes(groupId),
+        ethereum.Value.fromAddress(member),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   daiToken(): Address {
@@ -433,25 +389,6 @@ export class SquaryBaseTest extends ethereum.SmartContract {
         ethereum.Value.fromAddress(member),
       ],
     );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  getNonce(groupId: Bytes): BigInt {
-    let result = super.call("getNonce", "getNonce(bytes32):(uint256)", [
-      ethereum.Value.fromFixedBytes(groupId),
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_getNonce(groupId: Bytes): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("getNonce", "getNonce(bytes32):(uint256)", [
-      ethereum.Value.fromFixedBytes(groupId),
-    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -602,51 +539,6 @@ export class SquaryBaseTest extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  pendingSettlements(
-    param0: Bytes,
-    param1: BigInt,
-  ): SquaryBaseTest__pendingSettlementsResult {
-    let result = super.call(
-      "pendingSettlements",
-      "pendingSettlements(bytes32,uint256):(address,address,uint256)",
-      [
-        ethereum.Value.fromFixedBytes(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
-    );
-
-    return new SquaryBaseTest__pendingSettlementsResult(
-      result[0].toAddress(),
-      result[1].toAddress(),
-      result[2].toBigInt(),
-    );
-  }
-
-  try_pendingSettlements(
-    param0: Bytes,
-    param1: BigInt,
-  ): ethereum.CallResult<SquaryBaseTest__pendingSettlementsResult> {
-    let result = super.tryCall(
-      "pendingSettlements",
-      "pendingSettlements(bytes32,uint256):(address,address,uint256)",
-      [
-        ethereum.Value.fromFixedBytes(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new SquaryBaseTest__pendingSettlementsResult(
-        value[0].toAddress(),
-        value[1].toAddress(),
-        value[2].toBigInt(),
-      ),
-    );
-  }
-
   usdcToken(): Address {
     let result = super.call("usdcToken", "usdcToken():(address)", []);
 
@@ -712,44 +604,6 @@ export class ConstructorCall__Outputs {
   _call: ConstructorCall;
 
   constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
-export class AddGroupMemberCall extends ethereum.Call {
-  get inputs(): AddGroupMemberCall__Inputs {
-    return new AddGroupMemberCall__Inputs(this);
-  }
-
-  get outputs(): AddGroupMemberCall__Outputs {
-    return new AddGroupMemberCall__Outputs(this);
-  }
-}
-
-export class AddGroupMemberCall__Inputs {
-  _call: AddGroupMemberCall;
-
-  constructor(call: AddGroupMemberCall) {
-    this._call = call;
-  }
-
-  get groupId(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get newMember(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get signatures(): Array<Bytes> {
-    return this._call.inputValues[2].value.toBytesArray();
-  }
-}
-
-export class AddGroupMemberCall__Outputs {
-  _call: AddGroupMemberCall;
-
-  constructor(call: AddGroupMemberCall) {
     this._call = call;
   }
 }
@@ -864,44 +718,6 @@ export class DepositFundsCall__Outputs {
   _call: DepositFundsCall;
 
   constructor(call: DepositFundsCall) {
-    this._call = call;
-  }
-}
-
-export class RemoveGroupMemberCall extends ethereum.Call {
-  get inputs(): RemoveGroupMemberCall__Inputs {
-    return new RemoveGroupMemberCall__Inputs(this);
-  }
-
-  get outputs(): RemoveGroupMemberCall__Outputs {
-    return new RemoveGroupMemberCall__Outputs(this);
-  }
-}
-
-export class RemoveGroupMemberCall__Inputs {
-  _call: RemoveGroupMemberCall;
-
-  constructor(call: RemoveGroupMemberCall) {
-    this._call = call;
-  }
-
-  get groupId(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get member(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get signatures(): Array<Bytes> {
-    return this._call.inputValues[2].value.toBytesArray();
-  }
-}
-
-export class RemoveGroupMemberCall__Outputs {
-  _call: RemoveGroupMemberCall;
-
-  constructor(call: RemoveGroupMemberCall) {
     this._call = call;
   }
 }

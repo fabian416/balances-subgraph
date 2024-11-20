@@ -18,24 +18,6 @@ type GroupCreated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type MemberAdded @entity(immutable: true) {
-  id: Bytes!
-  groupId: Bytes! # bytes32
-  newMember: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type MemberRemoved @entity(immutable: true) {
-  id: Bytes!
-  groupId: Bytes! # bytes32
-  member: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type SettleCompleted @entity(immutable: true) {
   id: Bytes!
   groupId: Bytes! # bytes32

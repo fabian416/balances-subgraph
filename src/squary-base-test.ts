@@ -2,8 +2,6 @@ import {
   DepositMade as DepositMadeEvent,
   WithdrawalMade as WithdrawalMadeEvent,
   SettleCompleted as SettleCompletedEvent,
-  MemberAdded as MemberAddedEvent,
-  MemberRemoved as MemberRemovedEvent,
   GroupCreated as GroupCreatedEvent,
   ThresholdChanged as ThresholdChangedEvent
 } from "../generated/SquaryBaseTest/SquaryBaseTest"
@@ -12,8 +10,6 @@ import {
   DepositMade,
   WithdrawalMade,
   SettleCompleted,
-  MemberAdded,
-  MemberRemoved,
   ThresholdChanged,
   GroupCreated
 } from "../generated/schema"
@@ -68,19 +64,6 @@ export function handleThresholdChanged(event: ThresholdChangedEvent): void {
   entity.save()
 }
 
-export function handleMemberAdded(event: MemberAddedEvent): void {
-  let entity = new MemberAdded(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.groupId = event.params.groupId
-  entity.newMember = event.params.newMember
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
 
 export function handleDepositMade(event: DepositMadeEvent): void {
   let entity = new DepositMade(
@@ -97,20 +80,6 @@ export function handleDepositMade(event: DepositMadeEvent): void {
   entity.save()
 
   updateBalance(event.params.groupId, event.params.member, event.params.amount, true);
-}
-
-export function handleMemberRemoved(event: MemberRemovedEvent): void {
-  let entity = new MemberRemoved(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.groupId = event.params.groupId
-  entity.member = event.params.member
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
 }
 
 export function handleWithdrawalMade(event: WithdrawalMadeEvent): void {
