@@ -6,9 +6,9 @@ dataSources:
     name: SquaryBaseTest
     network: base-sepolia
     source:
-      address: "0x364f3828A0FD4A7087590b2F5C083F3CD0AE6d7B"
+      address: "0xFC5208079683746b88F792333159CF631e63fF80"
       abi: SquaryBaseTest
-      startBlock: 11405111
+      startBlock: 18403009
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
